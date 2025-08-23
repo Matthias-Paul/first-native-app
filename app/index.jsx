@@ -1,8 +1,12 @@
-import { Pressable, Text, TextInput, View, FlatList  } from "react-native";
+import { View, Pressable, Text } from "react-native";
 import { useState } from "react";
+import GoalItems from "../components/GoalItems";
+import GoalInput from "../components/GoalInput";
 
 export default function Index() {
   const [enteredGoalText, setEnteredGoalText] = useState("");
+  const [modalIsVisible, setModalIsVisible] = useState(false);
+
   const [goalList, setGoalList] = useState([]);
 
   const goalInputHandler = (enterText) => {
@@ -11,46 +15,40 @@ export default function Index() {
   };
 
   const addGoalHandler = () => {
+    if (enteredGoalText === "") {
+      return;
+    }
     setGoalList((prevGoals) => [...prevGoals, enteredGoalText]);
-    // setEnteredGoalText("");
+    setModalIsVisible(false);
+    console.log("added")
+    setEnteredGoalText("");
   };
-  return (
-    <View className="w-full flex-1 px-2 pt-5 items-center bg-blue-900">
-      <View className="w-full mb-8 flex-row justify-center items-center">
-        <View className="flex-1">
-          <TextInput
-            onChangeText={goalInputHandler}
-            className="text-white text-lg border border-white p-2 rounded-md"
-            placeholder="Your course goal"
-            placeholderTextColor="#ccc"
-          />
-        </View>
 
-        <Pressable
-          onPress={addGoalHandler}
-          className="ml-2 bg-white px-3 py-2 rounded-md"
-        >
-          <Text className="text-green-600 text-lg text-center font-semibold">
-            Add goal
-          </Text>
-        </Pressable>
-      </View>
+  const deleteGoalHandler = (index) => {
+    setGoalList((goals) => goals.filter((_, i) => i !== index));
+  };
+
+  return (
+    <View className="w-full flex-1  px-4 pt-5 items-center bg-blue-900">
+      <Pressable
+        onPress={() => setModalIsVisible(true)}
+        className=" w-full mb-8 bg-white py-2 rounded-md"
+      >
+        <Text className="text-green-600 text-lg text-center font-semibold">
+          Add New Goal
+        </Text>
+      </Pressable>
+
+      <GoalInput
+        enteredGoalText={enteredGoalText}
+        goalInputHandler={goalInputHandler}
+        addGoalHandler={addGoalHandler}
+        modalIsVisible={modalIsVisible}
+        setModalIsVisible={setModalIsVisible}
+      />
 
       {/* Goals List */}
-      <View  className="pt-8 flex-1 border-t border-white w-full ">
-          <FlatList data={goalList} renderItem={ (itemData) => (
-            <View
-            className="rounded-md p-2 mx-4 border text-white mb-4 border-white shadow-md"
-            style={{ elevation: 4 }}>
-            <Text className="leading-tight text-white ">{itemData.item}</Text>
-          </View>
-          )
-          }
-          keyExtractor={(item, index) => index.toString() }
-          />
-      
-      </View>
-      
+      <GoalItems deleteGoalHandler={deleteGoalHandler} goalList={goalList} />
     </View>
   );
 }
